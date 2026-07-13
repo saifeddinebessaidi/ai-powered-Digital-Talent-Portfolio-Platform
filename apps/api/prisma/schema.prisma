@@ -1,0 +1,145 @@
+// Prisma schema — AI Portfolio Generator (Neon / PostgreSQL, Prisma 7)
+// Connection URL is in prisma.config.ts (datasource.url); runtime uses the pg driver adapter.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+  runtime      = "nodejs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Portfolio {
+  id           String    @id @default(uuid())
+  userId       String    @unique // from host app
+  fullName     String
+  gender       String?
+  dateOfBirth  DateTime? // private
+  email        String
+  phone        String? // private by default
+  location     String
+  profession   String // actress|actor|model|influencer|content_creator|other
+  description  String?   @db.Text
+  instagramUrl String?   @db.VarChar(512)
+  facebookUrl  String?   @db.VarChar(512)
+  tiktokUrl    String?   @db.VarChar(512)
+  youtubeUrl   String?   @db.VarChar(512)
+
+  instagramFollowers Int? // self-reported, optional
+  facebookFollowers  Int? // self-reported, optional
+  tiktokFollowers    Int? // self-reported, optional
+  youtubeSubscribers Int? // self-reported, optional
+
+  reach      Int? // self-reported audience reach, optional
+  engagement Int? // self-reported engagement, optional
+
+  headline     String? // AI, editable
+  biography    String?  @db.Text
+  skills       Json     @default("[]") // AI array of strings, editable
+  brandSummary String?  @db.Text
+
+  // Display fields used by the portfolio page (French template)
+  tagline          String? // hero subtitle
+  availabilityText String? // "Besoin d'assistance ? Réservez maintenant"
+  availabilityDate String? // e.g. "1er janvier 2026"
+  resumeUrl        String? @db.VarChar(512)
+  addressText      String? @db.Text
+
+  slug      String?  @unique // null until published
+  status    String   @default("draft") // draft|generating|ready|published
+  showPhone Boolean  @default(false)
+  showDob   Boolean  @default(false)
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  photos      Photo[]
+  experiences Experience[]
+  pricing     PricingItem[]
+  projects    Project[]
+  jobs        GenerationJob[]
+
+  @@index([status])
+}
+
+model PricingItem {
+  id          String    @id @default(uuid())
+  portfolioId String
+  category    String // e.g. reels | live | events | other
+  label       String // display label, e.g. "Reels Instagram"
+  priceMin    Int?
+  priceMax    Int?
+  currency    String    @default("TND")
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId, sortOrder])
+}
+
+model Project {
+  id          String    @id @default(uuid())
+  portfolioId String
+  title       String
+  category    String?
+  description String?   @db.Text
+  imageUrl    String?   @db.VarChar(512)
+  featured    Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId, sortOrder])
+}
+
+model Photo {
+  id                 String    @id @default(uuid())
+  portfolioId        String
+  cloudinaryPublicId String
+  url                String    @db.VarChar(512)
+  width              Int?
+  height             Int?
+  isCover            Boolean   @default(false)
+  sortOrder          Int       @default(0)
+  createdAt          DateTime  @default(now())
+  portfolio          Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId, sortOrder])
+}
+
+model Experience {
+  id          String    @id @default(uuid())
+  portfolioId String
+  type        String // acting_credit|brand_collab|other
+  title       String
+  role        String?
+  year        String?
+  note        String?   @db.Text
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId, sortOrder])
+}
+
+model GenerationJob {
+  id            String    @id @default(uuid())
+  portfolioId   String
+  section       String    @default("all") // all|headline|biography|skills|brand_summary
+  status        String    @default("queued") // queued|running|succeeded|failed
+  provider      String    @default("groq") // groq (testing) | openai | gemini | claude
+  inputSnapshot Json?
+  output        Json?
+  error         String?   @db.Text
+  tokensUsed    Int?
+  createdAt     DateTime  @default(now())
+  completedAt   DateTime?
+  portfolio     Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId, createdAt])
+  @@index([status])
+}
