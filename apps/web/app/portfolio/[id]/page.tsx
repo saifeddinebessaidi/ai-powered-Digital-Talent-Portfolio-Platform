@@ -277,12 +277,12 @@ function Nav({ hasProjects, onNavigate, onHome }: {
   return (
     <motion.nav
       initial={{ opacity: 0.1, y: -75 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.2, ease: EASE }}
-      className="fixed inset-x-0 top-0 z-40 flex items-center justify-between px-5 py-5 text-xs uppercase tracking-[0.2em] mix-blend-difference sm:px-8"
+      className="fixed inset-x-0 top-0 z-40 flex items-center justify-between gap-3 px-5 py-5 text-xs uppercase tracking-[0.12em] mix-blend-difference sm:gap-4 sm:tracking-[0.2em] sm:px-8"
     >
-      <button onClick={onHome} aria-label="REACCHY" className="text-sm font-semibold tracking-[0.35em] hover:opacity-60">
+      <button onClick={onHome} aria-label="REACCHY" className="shrink-0 text-sm font-semibold tracking-[0.2em] hover:opacity-60 sm:tracking-[0.35em]">
         REACCHY
       </button>
-      <div className="flex gap-4 sm:gap-6">
+      <div className="flex min-w-0 gap-3 overflow-x-auto whitespace-nowrap sm:gap-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {hasProjects && <a href="#projets" onClick={go('projets')} className="hover:opacity-60">Projets</a>}
         <a href="#about" onClick={go('about')} className="hover:opacity-60">À propos</a>
         <a href="#contact" onClick={go('contact')} className="hover:opacity-60">Contact</a>
