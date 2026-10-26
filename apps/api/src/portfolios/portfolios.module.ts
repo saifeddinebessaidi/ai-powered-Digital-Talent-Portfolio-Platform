@@ -28,6 +28,7 @@ const PROFESSIONS = [
   'model',
   'influencer',
   'content_creator',
+  'athlete',
   'other',
 ] as const;
 
