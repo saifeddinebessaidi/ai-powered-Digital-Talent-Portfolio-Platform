@@ -24,6 +24,7 @@ const PROFESSIONS: [string, string][] = [
   ['model', 'Mannequin'],
   ['influencer', 'Influenceur·euse'],
   ['content_creator', 'Créateur·rice de contenu'],
+  ['athlete', 'Athlète'],
   ['other', 'Autre'],
 ];
 const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp'];
