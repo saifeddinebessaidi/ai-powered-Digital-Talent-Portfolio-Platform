@@ -27,6 +27,7 @@ const PROFESSION_FR: Record<string, string> = {
   model: 'Mannequin',
   influencer: 'Influenceur·euse',
   content_creator: 'Créateur·rice de contenu',
+  athlete: 'Athlète',
   other: 'Artiste',
 };
 const CATEGORY_FR: Record<string, string> = {
