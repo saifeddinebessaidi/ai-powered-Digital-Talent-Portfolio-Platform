@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const Profession = z.enum([
-  'actress', 'actor', 'model', 'influencer', 'content_creator', 'other',
+  'actress', 'actor', 'model', 'influencer', 'content_creator', 'athlete', 'other',
 ]);
 
 // AI generation output — the single source of truth for both apps
