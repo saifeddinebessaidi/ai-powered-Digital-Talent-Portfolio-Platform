@@ -421,12 +421,9 @@ export default function GeneratePage({ params }: { params: Promise<{ id: string 
           <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">Projets</h2>
           {projects.map((p, i) => (
             <div key={i} className="grid gap-2 rounded-md border border-neutral-200 p-3">
-              <div className="grid grid-cols-[1fr_160px_auto] items-center gap-2">
+              <div className="grid grid-cols-[1fr_160px] items-center gap-2">
                 <Input placeholder="Titre du projet" value={p.title} onChange={(e) => upProj(i, { title: e.target.value })} />
                 <Input placeholder="Catégorie" value={p.category ?? ''} onChange={(e) => upProj(i, { category: e.target.value })} />
-                <label className="flex items-center gap-1 text-xs text-neutral-600">
-                  <input type="checkbox" checked={!!p.featured} onChange={(e) => upProj(i, { featured: e.target.checked })} /> En vedette
-                </label>
               </div>
               <Textarea rows={2} placeholder="Description courte" value={p.description ?? ''} onChange={(e) => upProj(i, { description: e.target.value })} />
               <div className="flex items-center gap-3">
