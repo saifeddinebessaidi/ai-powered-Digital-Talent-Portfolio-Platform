@@ -21,7 +21,7 @@ model Portfolio {
   email        String
   phone        String? // private by default
   location     String
-  profession   String // actress|actor|model|influencer|content_creator|other
+  profession   String // actress|actor|model|influencer|content_creator|athlete|other
   description  String?   @db.Text
   instagramUrl String?   @db.VarChar(512)
   facebookUrl  String?   @db.VarChar(512)
