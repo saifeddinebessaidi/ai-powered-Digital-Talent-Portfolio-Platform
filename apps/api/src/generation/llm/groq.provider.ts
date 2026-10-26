@@ -13,6 +13,7 @@ const PROFESSION_FR: Record<string, string> = {
   model: 'mannequin',
   influencer: 'influenceur/influenceuse',
   content_creator: 'créateur/créatrice de contenu',
+  athlete: 'athlète',
   other: 'professionnel(le)',
 };
 
