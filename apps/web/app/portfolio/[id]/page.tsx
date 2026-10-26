@@ -213,8 +213,7 @@ export default function PortfolioPage({ params }: { params: Promise<{ id: string
 
   const profession = PROFESSION_FR[data.profession] ?? data.profession;
   const photos = (data.photos ?? []).filter((p) => p.url);
-  const featured = (data.projects ?? []).filter((p) => p.featured);
-  const selected = (data.projects ?? []).filter((p) => !p.featured);
+  const projects = data.projects ?? [];
   const socials: Social[] = [
     { label: 'Instagram', url: data.instagramUrl, count: data.instagramFollowers },
     { label: 'Facebook', url: data.facebookUrl, count: data.facebookFollowers },
@@ -235,7 +234,7 @@ export default function PortfolioPage({ params }: { params: Promise<{ id: string
 
       <motion.div style={{ scaleX: progress }} className="fixed inset-x-0 top-0 z-50 h-[2px] origin-left bg-white" />
 
-      <Nav hasProjects={featured.length > 0 || selected.length > 0} onNavigate={scrollToId} onHome={scrollToTop} />
+      <Nav hasProjects={projects.length > 0} onNavigate={scrollToId} onHome={scrollToTop} />
 
       <Hero name={data.fullName} profession={profession} location={data.location} tagline={data.tagline} photos={photos} />
 
@@ -243,8 +242,8 @@ export default function PortfolioPage({ params }: { params: Promise<{ id: string
 
       <Metrics data={data} />
 
-      {(featured.length > 0 || selected.length > 0) && (
-        <Projects featured={featured} selected={selected} photos={photos} />
+      {projects.length > 0 && (
+        <Projects projects={projects} photos={photos} />
       )}
 
       {data.experiences && data.experiences.length > 0 && (
@@ -449,7 +448,7 @@ function ParallaxImage({ src, alt, className = '' }: { src: string; alt: string;
   );
 }
 
-function Projects({ featured, selected, photos }: { featured: Project[]; selected: Project[]; photos: Photo[] }) {
+function Projects({ projects, photos }: { projects: Project[]; photos: Photo[] }) {
   const [open, setOpen] = useState<Project | null>(null);
 
   // Fall back to uploaded portfolio photos when a project has no image of its own.
@@ -462,7 +461,7 @@ function Projects({ featured, selected, photos }: { featured: Project[]; selecte
         <Reveal><h2 className="mb-12 text-xs uppercase tracking-[0.3em] text-white/50">Projets</h2></Reveal>
 
         <div className="space-y-20">
-          {featured.map((p, k) => {
+          {projects.map((p, k) => {
             const img = imageFor(p, k);
             return (
               <Reveal key={`f${k}`} delay={0.05 * k}>
@@ -484,28 +483,6 @@ function Projects({ featured, selected, photos }: { featured: Project[]; selecte
             );
           })}
         </div>
-
-        {selected.length > 0 && (
-          <div className="mt-20 border-t border-white/10">
-            {selected.map((p, k) => (
-              <Reveal key={`s${k}`} delay={0.03 * k}>
-                <button
-                  type="button"
-                  onClick={() => setOpen(p)}
-                  className="group grid w-full grid-cols-[1fr_auto] items-baseline gap-4 border-b border-white/10 py-6 text-left transition-colors hover:bg-white/[0.03]"
-                >
-                  <div>
-                    <h4 className="font-serif text-xl transition-transform group-hover:translate-x-1 sm:text-2xl">{p.title}</h4>
-                    {p.description && <p className="mt-1 line-clamp-1 text-sm text-white/60">{p.description}</p>}
-                  </div>
-                  <span className="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-white/50">
-                    {p.category}<span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
-                  </span>
-                </button>
-              </Reveal>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Detail modal */}
@@ -525,7 +502,7 @@ function Projects({ featured, selected, photos }: { featured: Project[]; selecte
               onClick={(e) => e.stopPropagation()}
             >
               {(() => {
-                const idx = [...featured, ...selected].indexOf(open);
+                const idx = projects.indexOf(open);
                 const img = imageFor(open, idx < 0 ? 0 : idx);
                 return img ? (
                   // eslint-disable-next-line @next/next/no-img-element
