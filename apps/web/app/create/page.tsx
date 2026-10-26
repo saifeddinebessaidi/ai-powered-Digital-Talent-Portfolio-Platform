@@ -20,6 +20,7 @@ const PROFESSION_LABELS: Record<string, string> = {
   model: 'Model',
   influencer: 'Influencer',
   content_creator: 'Content Creator',
+  athlete: 'Athlete',
   other: 'Other',
 };
 
@@ -29,6 +30,7 @@ const PROFESSIONS = [
   'model',
   'influencer',
   'content_creator',
+  'athlete',
   'other',
 ] as const;
 
