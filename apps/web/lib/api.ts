@@ -5,11 +5,29 @@
 const BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000/api/v1';
 
+/** `status` is null when the API could not be reached at all (server down / network error). */
+export class ApiError extends Error {
+  readonly status: number | null;
+  constructor(message: string, status: number | null) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
+  get isOffline() {
+    return this.status === null;
+  }
+}
+
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
-    ...init,
-    headers: { 'Content-Type': 'application/json', ...(init.headers ?? {}) },
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${BASE}${path}`, {
+      ...init,
+      headers: { 'Content-Type': 'application/json', ...(init.headers ?? {}) },
+    });
+  } catch {
+    throw new ApiError('Service indisponible', null);
+  }
   if (!res.ok) {
     let message = res.statusText;
     try {
@@ -18,7 +36,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     } catch {
       /* ignore */
     }
-    throw new Error(message);
+    throw new ApiError(message, res.status);
   }
   return (res.status === 204 ? undefined : await res.json()) as T;
 }
