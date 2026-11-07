@@ -1,13 +1,12 @@
 'use client';
 
 import { use, useEffect, useRef, useState, type ReactNode } from 'react';
-import Link from 'next/link';
 import { AnimatePresence, motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 import { Toaster } from '@/components/ui/sonner';
 import { toast } from 'sonner';
-import { api } from '@/lib/api';
+import { api, ApiError } from '@/lib/api';
 
 /* Rebirth-style easing (cubic-bezier from the Framer template) */
 const EASE = [0.44, 0, 0.56, 1] as const;
@@ -152,13 +151,21 @@ function SplitText({ text, className = '', delay = 0, stagger = 0.03 }: {
 export default function PortfolioPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [data, setData] = useState<Data | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<'offline' | 'notfound' | null>(null);
 
   useEffect(() => {
+    let alive = true;
+    setError(null);
     api
       .getPortfolio(id)
-      .then((p) => setData(p as unknown as Data))
-      .catch((e) => setError((e as Error).message));
+      .then((p) => alive && setData(p as unknown as Data))
+      .catch((e) => {
+        if (!alive) return;
+        setError(e instanceof ApiError && e.isOffline ? 'offline' : 'notfound');
+      });
+    return () => {
+      alive = false;
+    };
   }, [id]);
 
   useEffect(() => {
@@ -198,11 +205,28 @@ export default function PortfolioPage({ params }: { params: Promise<{ id: string
   };
 
   if (error) {
+    const offline = error === 'offline';
     return (
-      <main className="flex min-h-screen items-center justify-center bg-black text-white">
-        <div className="text-center">
-          <p className="text-neutral-400">Portfolio introuvable.</p>
-          <Link href="/dashboard" className="mt-3 inline-block text-sm underline">Retour au tableau de bord</Link>
+      <main className="flex min-h-screen items-center justify-center bg-black px-6 text-white">
+        <div className="max-w-sm text-center">
+          <p className="text-5xl font-light tracking-tight text-neutral-700">{offline ? '503' : '404'}</p>
+          <h1 className="mt-4 text-lg font-medium">
+            {offline ? 'Service momentanément indisponible' : 'Portfolio introuvable'}
+          </h1>
+          <p className="mt-2 text-sm leading-relaxed text-neutral-400">
+            {offline
+              ? 'Nous ne parvenons pas à joindre le serveur pour le moment. Merci de réessayer dans quelques instants.'
+              : 'Ce portfolio n’existe pas ou n’est plus disponible.'}
+          </p>
+          {offline && (
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="mt-6 inline-flex h-9 items-center rounded-md border border-neutral-700 px-4 text-sm font-medium text-neutral-200 transition-colors hover:bg-neutral-900"
+            >
+              Réessayer
+            </button>
+          )}
         </div>
       </main>
     );
